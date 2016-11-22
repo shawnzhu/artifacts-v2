@@ -6,6 +6,16 @@
 
 work with artifacts over HTTP API.
 
+## Install Dependencies
+
+```
+$ go get ./...
+```
+
 ## Testing
 
 A running PostgreSQL is required.
+
+```
+$ go test -v ./...
+```
