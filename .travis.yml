@@ -23,3 +23,8 @@ before_script:
 - psql -c 'CREATE DATABASE test_artifacts;' -U postgres
 - psql -f store/ddl/1.sql -d test_artifacts -U postgres
 - psql -c "INSERT INTO artifacts (build_id, path, s3_object_key) VALUES ('foo', '/bar', 'fake_key');" -d test_artifacts -U postgres
+
+script:
+- go get golang.org/x/tools/cmd/cover
+- go get github.com/mattn/goveralls
+- goveralls
