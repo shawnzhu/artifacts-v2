@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-gonic/contrib/jwt"
 	"github.com/gin-gonic/gin"
 
 	"github.com/travis-ci/artifacts-v2/server"
@@ -21,7 +22,7 @@ func Routes(middleware ...gin.HandlerFunc) http.Handler {
 
 	router.GET("/status", server.HealthCheck)
 
-	router.Use(JWT(jwtSecret))
+	router.Use(jwt.Auth(jwtSecret))
 
 	router.Use(store.Store())
 
