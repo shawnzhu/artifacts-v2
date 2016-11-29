@@ -17,7 +17,7 @@ func TestS3(t *testing.T) {
 			buildID := "foo"
 			err := PutArtifact(&model.Artifact{
 				BuildID: &buildID,
-			}, "")
+			}, nil)
 
 			if err == nil {
 				g.Assert(err).Equal(nil) // fail test
