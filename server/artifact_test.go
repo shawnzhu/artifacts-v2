@@ -58,6 +58,14 @@ func TestHandlers(t *testing.T) {
 	})
 
 	g.Describe("upload artifact", func() {
+		g.It("responses client side error", func() {
+			req, _ := http.NewRequest("POST", "/upload/bar", nil)
+			resp := httptest.NewRecorder()
+			app.ServeHTTP(resp, req)
+
+			g.Assert(resp.Code).Equal(http.StatusBadRequest)
+		})
+
 		g.It("fails AWS config", func() {
 			var (
 				bodyBuffer = bytes.Buffer{}
@@ -107,7 +115,7 @@ func TestHandlers(t *testing.T) {
 
 		g.It("redirects to a download URL of artifact", func() {
 			artifactPath := fmt.Sprintf("/b/foo/a/%v", artifactID)
-			fmt.Println(artifactPath)
+
 			req, _ := http.NewRequest("GET", artifactPath, nil)
 			resp := httptest.NewRecorder()
 			app.ServeHTTP(resp, req)
