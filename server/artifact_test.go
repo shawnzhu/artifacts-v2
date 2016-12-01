@@ -126,5 +126,13 @@ func TestHandlers(t *testing.T) {
 			objectURL, _ := url.Parse(rawURL)
 			g.Assert(objectURL.Scheme).Equal("https")
 		})
+
+		g.It("responses client side error", func() {
+			req, _ := http.NewRequest("GET", "/b/foo/a/not-int", nil)
+			resp := httptest.NewRecorder()
+			app.ServeHTTP(resp, req)
+
+			g.Assert(resp.Code).Equal(http.StatusBadRequest)
+		})
 	})
 }
