@@ -1,10 +1,7 @@
 package server
 
 import (
-	"io"
-	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -23,46 +20,41 @@ func HealthCheck(c *gin.Context) {
 func UploadArtifact(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 
-	defer file.Close()
-
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	if file != nil {
+		defer file.Close()
 	}
 
 	buildID := c.Param("build_id")
-	out, err := ioutil.TempFile(os.TempDir(), buildID)
-
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-	}
-
-	defer out.Close()
-	_, err = io.Copy(out, file)
 
 	filename := header.Filename
-	path := c.PostForm("path")
-	objectKey := store.HashKey(buildID, path)
+	objectKey := store.HashKey(buildID, filename)
 
 	artifact := &model.Artifact{
 		BuildID:   &buildID,
-		Path:      &path,
+		Path:      &filename,
 		ObjectKey: &objectKey,
 	}
 
-	err = store.PutArtifact(artifact, out.Name())
+	err = store.PutArtifact(artifact, file)
+
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	datastore := store.FromContext(c)
+
+	err = datastore.CreateArtifact(artifact)
 
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 	} else {
-		datastore := store.FromContext(c)
-
-		err = datastore.CreateArtifact(artifact)
-
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-		} else {
-			c.String(http.StatusCreated, filename)
-		}
+		c.String(http.StatusCreated, filename)
 	}
 }
 

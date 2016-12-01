@@ -2,7 +2,7 @@ package store
 
 import (
 	"fmt"
-	"os"
+	"mime/multipart"
 	"time"
 
 	"crypto/md5"
@@ -38,14 +38,7 @@ func HashKey(buildID string, path string) string {
 }
 
 // PutArtifact saves artifact to S3
-func PutArtifact(artifact *model.Artifact, filename string) error {
-	file, err := os.Open(filename)
-	defer file.Close()
-
-	if err != nil {
-		return err
-	}
-
+func PutArtifact(artifact *model.Artifact, file multipart.File) error {
 	svc, err := newAWSSession()
 
 	_, err = svc.PutObject(&s3.PutObjectInput{
