@@ -21,7 +21,7 @@ func UploadArtifact(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
