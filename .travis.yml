@@ -18,6 +18,7 @@ env:
   - GIN_MODE=test
   - AWS_ACCESS_KEY_ID=AKID0987654321
   - AWS_SECRET_ACCESS_KEY=NOT-MY-SECRET
+  - JWT_SECRET=surpriseme
 
 before_script:
 - psql -c 'CREATE DATABASE test_artifacts;' -U postgres
