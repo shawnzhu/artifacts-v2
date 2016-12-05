@@ -7,16 +7,36 @@
 
 work with artifacts over HTTP API.
 
-## Install Dependencies
+## Requirements
+
+* Go v1.7.3
+* A running PostgreSQL v9
+* credentials for saving object into AWS S3
+* a piece signing key for JWT token verification
+
+## Install
 
 ```
 $ go get ./...
 ```
 
-## Testing
+### Database setup
 
-A running PostgreSQL is required.
+1. Create a database named `test_artifacts`
+1. Run SQL from [store/ddl/1.sql](store/ddl/1.sql)
+
+### AWS credentials
+
+See [Configuring Credentials](https://github.com/aws/aws-sdk-go#configuring-credentials)
+
+## Testing
 
 ```
 $ go test -v ./...
+```
+
+Starting test server:
+
+```
+$ go run server.go
 ```
