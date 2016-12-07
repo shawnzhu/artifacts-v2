@@ -12,7 +12,7 @@ work with artifacts over HTTP API.
 * Go v1.7.3
 * A running PostgreSQL v9
 * credentials for saving object into AWS S3
-* a piece signing key for JWT token verification
+* a public key for verifying JWT token signed by a private key
 
 ## Install
 
@@ -28,6 +28,11 @@ $ go get ./...
 ### AWS credentials
 
 See [Configuring Credentials](https://github.com/aws/aws-sdk-go#configuring-credentials)
+
+### Public key
+
+Make sure the environment variable `JWT_PUBLIC_KEY` contains public key in PEM format.
+E.g., `export JWT_PUBLIC_KEY="$(public_key.pem)"`
 
 ## Testing
 

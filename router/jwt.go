@@ -1,7 +1,6 @@
 package router
 
 import (
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -13,7 +12,7 @@ import (
 // Auth authenticates request validating JWT signature by a given public key.
 // a user agent must provide a BEARER token via the Authorization header
 func Auth() gin.HandlerFunc {
-	publicKeyPEM, _ := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY_PATH"))
+	publicKeyPEM := []byte(os.Getenv("JWT_PUBLIC_KEY"))
 
 	return func(c *gin.Context) {
 		keyFunc := func(token *jwt.Token) (interface{}, error) {

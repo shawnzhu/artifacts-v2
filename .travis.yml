@@ -26,7 +26,7 @@ before_script:
 - openssl genrsa -out private_key.pem 2048
 - openssl rsa -in private_key.pem -pubout -out public_key.pem
 - export JWT_PRIVATE_KEY_PATH=$(pwd)/private_key.pem
-- export JWT_PUBLIC_KEY_PATH=$(pwd)/public_key.pem
+- export JWT_PUBLIC_KEY="$(cat public_key.pem)"
 
 script:
 - go get golang.org/x/tools/cmd/cover
