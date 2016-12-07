@@ -2,9 +2,7 @@ package router
 
 import (
 	"net/http"
-	"os"
 
-	"github.com/gin-gonic/contrib/jwt"
 	"github.com/gin-gonic/gin"
 
 	"github.com/travis-ci/artifacts-v2/server"
@@ -13,18 +11,15 @@ import (
 
 // Routes load middlewares
 func Routes(middleware ...gin.HandlerFunc) http.Handler {
-	var (
-		router    = gin.Default()
-		jwtSecret = os.Getenv("JWT_SECRET")
-	)
+	var router = gin.Default()
 
 	// TODO add other middlewares
 
 	router.GET("/status", server.HealthCheck)
 
-	router.Use(jwt.Auth(jwtSecret))
-
 	router.Use(store.Store())
+
+	router.Use(Auth())
 
 	router.POST("/upload/:build_id", server.UploadArtifact)
 

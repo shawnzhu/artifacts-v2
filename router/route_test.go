@@ -1,6 +1,7 @@
 package router
 
 import (
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,14 +18,16 @@ func createTestApp() http.Handler {
 }
 
 func generateJWTToken() (string, error) {
-	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+	rsaPrivateKey, _ := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY_PATH"))
+	privateKey, _ := jwt.ParseRSAPrivateKeyFromPEM(rsaPrivateKey)
 	jwtClaims := jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(1 * time.Hour).Unix(),
 		Issuer:    "test",
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtClaims)
-	return token.SignedString(jwtSecret)
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwtClaims)
+
+	return token.SignedString(privateKey)
 }
 
 func TestJWT(t *testing.T) {
@@ -43,6 +46,7 @@ func TestJWT(t *testing.T) {
 
 		g.It("supports JWT token", func() {
 			jwtToken, _ := generateJWTToken()
+
 			req, _ := http.NewRequest("GET", "/builds/foo", nil)
 			req.Header.Set("Authorization", "BEARER "+jwtToken)
 			resp := httptest.NewRecorder()
