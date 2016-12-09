@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -15,6 +16,8 @@ import (
 type datastore struct {
 	*sql.DB
 }
+
+const defaultDBURL = "postgresql://postgres@localhost:5432/test_artifacts?sslmode=disable"
 
 // open opens new db connection
 func open(driverName, dbConnURL string) *datastore {
@@ -29,9 +32,15 @@ func open(driverName, dbConnURL string) *datastore {
 
 // Store provides a middleware to inject data source
 func Store() gin.HandlerFunc {
+	var dbURL string
+
+	if dbURL = os.Getenv("DB_URL"); dbURL == "" {
+		dbURL = defaultDBURL
+	}
+
 	return func(c *gin.Context) {
 		var store *datastore
-		store = open("postgres", "postgresql://postgres@localhost:5432/test_artifacts?sslmode=disable")
+		store = open("postgres", dbURL)
 		c.Set("store", store)
 		c.Next()
 	}
