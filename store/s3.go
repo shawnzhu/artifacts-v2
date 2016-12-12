@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"mime/multipart"
+	"os"
 	"time"
 
 	"crypto/md5"
@@ -16,10 +17,19 @@ import (
 )
 
 const (
-	// TODO make bucket configurable
 	artifactBucketName = "travis-ci-artifacts-test"
 	downloadExpireTime = 5 * time.Minute // duration of download URL
 )
+
+func getBucketName() *string {
+	var bucketName = os.Getenv("ARTIFACTS_S3_BUCKET_NAME")
+
+	if bucketName == "" {
+		bucketName = artifactBucketName
+	}
+
+	return aws.String(bucketName)
+}
 
 func newAWSSession() (*s3.S3, error) {
 	// TODO make region configurable
@@ -42,7 +52,7 @@ func PutArtifact(artifact *model.Artifact, file multipart.File) error {
 	svc, err := newAWSSession()
 
 	_, err = svc.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(artifactBucketName),
+		Bucket: getBucketName(),
 		Key:    artifact.ObjectKey,
 		Body:   file,
 	})
@@ -65,7 +75,7 @@ func GetObjectURL(objectKey string) (string, error) {
 	svc, _ := newAWSSession()
 
 	getObjectReq, _ := svc.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: aws.String(artifactBucketName),
+		Bucket: getBucketName(),
 		Key:    aws.String(objectKey),
 	})
 
