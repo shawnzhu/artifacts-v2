@@ -43,5 +43,5 @@ $ go test -v ./...
 Starting test server:
 
 ```
-$ go run server.go
+$ go run cmd/artifact.go
 ```
