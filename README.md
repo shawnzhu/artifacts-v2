@@ -43,5 +43,5 @@ $ go test -v ./...
 Starting test server:
 
 ```
-$ go run cmd/artifact.go
+$ go run cmd/travis-artifacts/main.go
 ```
