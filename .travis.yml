@@ -28,7 +28,4 @@ before_script:
 - export JWT_PRIVATE_KEY_PATH=$(pwd)/private_key.pem
 - export JWT_PUBLIC_KEY="$(cat public_key.pem)"
 
-script:
-- go get golang.org/x/tools/cmd/cover
-- go get github.com/mattn/goveralls
-- goveralls
+script: make
