@@ -45,3 +45,17 @@ Starting test server:
 ```
 $ go run cmd/travis-artifacts/main.go
 ```
+
+## Build binary
+
+```
+make build
+```
+
+## Release
+
+Push to docker hub:
+
+```
+make TAG=<tag-name> release
+```

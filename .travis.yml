@@ -11,7 +11,7 @@ go_import_path: github.com/travis-ci/artifacts-v2
 
 services:
 - postgresql
-- docker # just want to use GCE worker
+- docker
 
 env:
   global:
@@ -29,3 +29,12 @@ before_script:
 - export JWT_PUBLIC_KEY="$(cat public_key.pem)"
 
 script: make
+
+before_deploy: docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+
+deploy:
+  provider: script
+  script: make TAG=${TRAVIS_BRANCH} release
+  skip_cleanup: true
+  on:
+    branch: deployment

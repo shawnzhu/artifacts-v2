@@ -1,9 +1,12 @@
 BINARY		= travis-artifacts
+NS			= shawnzhu
+REPO		= artifacts-v2
 BIN_DIR		= bin
 
 SHELL		:= /bin/bash
 GOOS		:= $(shell go env GOOS)
 GOARCH		:= $(shell go env GOARCH)
+
 
 default: clean install test build
 
@@ -22,6 +25,10 @@ test:
 build:
 	test -d $(BIN_DIR) || mkdir -p $(BIN_DIR)
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(BIN_DIR)/$(BINARY) cmd/travis-artifacts/main.go
+
+release:
+	docker build -t $(NS)/$(REPO):$(TAG) .
+	docker push $(NS)/$(REPO):$(TAG)
 
 clean:
 	if [ -d $(BIN_DIR) ]; then rm -r $(BIN_DIR); fi
