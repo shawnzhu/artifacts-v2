@@ -24,7 +24,7 @@ test:
 
 build:
 	test -d $(BIN_DIR) || mkdir -p $(BIN_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(BIN_DIR)/$(BINARY) cmd/travis-artifacts/main.go
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -o $(BIN_DIR)/$(BINARY) cmd/travis-artifacts/main.go
 
 release:
 	docker build -t $(NS)/$(REPO):$(TAG) .
