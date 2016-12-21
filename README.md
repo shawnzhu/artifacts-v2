@@ -59,3 +59,11 @@ Push to docker hub:
 ```
 make TAG=<tag-name> release
 ```
+
+## Deploy to Kubernetes
+
+create distributed app on ready Kubernetes cluster:
+
+```
+$ kubectl create -f k8s-app.yml
+```
