@@ -11,7 +11,7 @@ go_import_path: github.com/travis-ci/artifacts-v2
 
 services:
 - postgresql
-- docker # just want to use GCE worker
+- docker
 
 env:
   global:
@@ -28,7 +28,13 @@ before_script:
 - export JWT_PRIVATE_KEY_PATH=$(pwd)/private_key.pem
 - export JWT_PUBLIC_KEY="$(cat public_key.pem)"
 
-script:
-- go get golang.org/x/tools/cmd/cover
-- go get github.com/mattn/goveralls
-- goveralls
+script: make
+
+before_deploy: docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+
+deploy:
+  provider: script
+  script: make TAG=${TRAVIS_BRANCH} release
+  skip_cleanup: true
+  on:
+    branch: deployment

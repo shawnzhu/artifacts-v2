@@ -17,7 +17,7 @@ work with artifacts over HTTP API.
 ## Install
 
 ```
-$ go get ./...
+$ make install
 ```
 
 ### Database setup
@@ -37,11 +37,25 @@ E.g., `export JWT_PUBLIC_KEY="$(public_key.pem)"`
 ## Testing
 
 ```
-$ go test -v ./...
+$ make test
 ```
 
 Starting test server:
 
 ```
-$ go run cmd/artifact.go
+$ go run cmd/travis-artifacts/main.go
+```
+
+## Build binary
+
+```
+make build
+```
+
+## Release
+
+Push to docker hub:
+
+```
+make TAG=<tag-name> release
 ```
