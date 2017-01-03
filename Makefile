@@ -17,7 +17,7 @@ test:
 	if [ "${TRAVIS}" == "true" ]; then		\
 		go get golang.org/x/tools/cmd/cover;\
 		go get github.com/mattn/goveralls;	\
-		goveralls;							\
+		goveralls -v;						\
 	else									\
 		go test -v ./...;					\
 	fi
