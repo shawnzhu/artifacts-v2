@@ -51,8 +51,16 @@ func TestCli(t *testing.T) {
 			g.Assert(bytes.Contains(w.written, []byte(app.Usage)))
 		})
 
-		g.It("supports parameter server-addr", func() {
-			g.Assert(bytes.Contains(w.written, []byte("server-addr")))
-		})
+		params := [...]string{
+			"server-addr",
+			"server-cert",
+			"server-key",
+		}
+
+		for _, param := range params {
+			g.It(fmt.Sprintf("supports parameter %s", param), func() {
+				g.Assert(bytes.Contains(w.written, []byte(param)))
+			})
+		}
 	})
 }

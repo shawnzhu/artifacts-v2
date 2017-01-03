@@ -10,7 +10,19 @@ import (
 )
 
 func server(c *cli.Context) error {
-	return http.ListenAndServe(c.String("server-addr"), router.Routes())
+	handler := router.Routes()
+
+	if c.String("server-cert") == "" {
+		return http.ListenAndServe(c.String("server-addr"), handler)
+	}
+
+	// TLS support
+	return http.ListenAndServeTLS(
+		c.String("server-addr"),
+		c.String("server-cert"),
+		c.String("server-key"),
+		handler,
+	)
 }
 
 func app() *cli.App {
@@ -24,6 +36,16 @@ func app() *cli.App {
 			Usage:  "server address",
 			Value:  ":8080",
 			EnvVar: "SERVER_ADDR",
+		},
+		cli.StringFlag{
+			Name:   "server-cert",
+			Usage:  "server TLS cert",
+			EnvVar: "SERVER_CERT",
+		},
+		cli.StringFlag{
+			Name:   "server-key",
+			Usage:  "server TLS key",
+			EnvVar: "SERVER_KEY",
 		},
 	}
 
