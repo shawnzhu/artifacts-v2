@@ -32,7 +32,7 @@ See [Configuring Credentials](https://github.com/aws/aws-sdk-go#configuring-cred
 ### Public key
 
 Make sure the environment variable `JWT_PUBLIC_KEY` contains public key in PEM format.
-E.g., `export JWT_PUBLIC_KEY="$(public_key.pem)"`
+E.g., `export JWT_PUBLIC_KEY="$(cat public_key.pem)"`
 
 ## Testing
 
