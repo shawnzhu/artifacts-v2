@@ -65,5 +65,6 @@ make TAG=<tag-name> release
 create distributed app on ready Kubernetes cluster:
 
 ```
+$ kubectl create secret tls artifacts-v2 --cert=<cert-file-path> --key=<key-file-path>
 $ kubectl create -f k8s-app.yml
 ```

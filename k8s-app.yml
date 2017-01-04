@@ -6,9 +6,11 @@ metadata:
   labels:
     run: artifacts
 spec:
+  type: LoadBalancer
   ports:
-  - port: 8080
+  - port: 443
     protocol: TCP
+    name: https
   selector:
     run: artifacts-v2
 ---
@@ -25,6 +27,21 @@ spec:
     spec:
       containers:
       - name: server
-        image: shawnzhu/artifacts-v2:deployment
+        image: shawnzhu/artifacts-v2:kube
+        env:
+        - name: SERVER_ADDR
+          value: ":443"
+        - name: SERVER_CERT
+          value: /etc/travis-artifacts/tls.crt
+        - name: SERVER_KEY
+          value: /etc/travis-artifacts/tls.key
         ports:
-        - containerPort: 8080
+        - containerPort: 443
+        volumeMounts:
+        - name: tls
+          mountPath: "/etc/travis-artifacts"
+          readOnly: true
+      volumes:
+      - name: tls
+        secret:
+          secretName: artifacts-v2

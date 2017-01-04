@@ -37,4 +37,4 @@ deploy:
   script: make TAG=${TRAVIS_BRANCH} release
   skip_cleanup: true
   on:
-    branch: deployment
+    branch: kube
