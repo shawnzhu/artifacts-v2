@@ -35,11 +35,38 @@ spec:
           value: /etc/travis-artifacts/tls.crt
         - name: SERVER_KEY
           value: /etc/travis-artifacts/tls.key
+        - name: ARTIFACTS_S3_BUCKET_NAME
+          value: travis-ci-artifacts-test
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: aws_access_key_id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: aws_secret_access_key
+        - name: PGSSLROOTCERT
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: db_ca
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: db_url
+        - name: JWT_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: jwt_public_key
         ports:
         - containerPort: 443
         volumeMounts:
         - name: tls
-          mountPath: "/etc/travis-artifacts"
+          mountPath: /etc/travis-artifacts
           readOnly: true
       volumes:
       - name: tls

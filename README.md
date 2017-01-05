@@ -62,6 +62,26 @@ make TAG=<tag-name> release
 
 ## Deploy to Kubernetes
 
+Prerequisite: a secret object:
+
+```
+$ kubectl describe secrets/artifacts-drybag
+Name:		artifacts-drybag
+Namespace:	default
+Labels:		<none>
+Annotations:	<none>
+
+Type:	Opaque
+
+Data
+====
+aws_access_key_id:	21 bytes
+aws_secret_access_key:	41 bytes
+db_ca:			1224 bytes
+db_url:			105 bytes
+jwt_public_key:		451 bytes
+```
+
 create distributed app on ready Kubernetes cluster:
 
 ```
