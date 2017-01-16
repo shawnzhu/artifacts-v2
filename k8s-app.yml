@@ -25,6 +25,13 @@ spec:
       labels:
         run: artifacts-v2
     spec:
+      volumes:
+      - name: tls
+        secret:
+          secretName: artifacts-tls
+      - name: drybag
+        secret:
+          secretName: artifacts-drybag
       containers:
       - name: server
         image: shawnzhu/artifacts-v2:kube
@@ -35,6 +42,8 @@ spec:
           value: /etc/travis-artifacts/tls.crt
         - name: SERVER_KEY
           value: /etc/travis-artifacts/tls.key
+        - name: PGSSLROOTCERT
+          value: /etc/travis-artifacts-drybag/travis-artifacts-psql.crt
         - name: ARTIFACTS_S3_BUCKET_NAME
           value: travis-ci-artifacts-test
         - name: AWS_ACCESS_KEY_ID
@@ -47,11 +56,6 @@ spec:
             secretKeyRef:
               name: artifacts-drybag
               key: aws_secret_access_key
-        - name: PGSSLROOTCERT
-          valueFrom:
-            secretKeyRef:
-              name: artifacts-drybag
-              key: db_ca
         - name: DB_URL
           valueFrom:
             secretKeyRef:
@@ -68,7 +72,6 @@ spec:
         - name: tls
           mountPath: /etc/travis-artifacts
           readOnly: true
-      volumes:
-      - name: tls
-        secret:
-          secretName: artifacts-v2
+        - name: drybag
+          mountPath: /etc/travis-artifacts-drybag
+          readOnly: true
