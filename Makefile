@@ -30,7 +30,18 @@ release:
 	docker build -t $(NS)/$(REPO):$(TAG) .
 	docker push $(NS)/$(REPO):$(TAG)
 
+install_kubectl:
+	if [ "${TRAVIS}" == "true" ] && [ "$(which kubectl)" == "" ]; then		\
+		KUBECTL_RELEASE="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)" \
+		sudo curl -ssL -o /usr/local/bin/kubectl \
+		https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_RELEASE}/bin/linux/amd64/kubectl \
+		sudo chmod +x /usr/local/bin/kubectl \
+	fi
+
+deploy:
+	/usr/local/bin/kubectl apply -f k8s-app.yml
+
 clean:
 	if [ -d $(BIN_DIR) ]; then rm -r $(BIN_DIR); fi
 
-.PHONY: default test build clean
+.PHONY: default test build clean deploy
