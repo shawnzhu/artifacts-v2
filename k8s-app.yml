@@ -35,6 +35,7 @@ spec:
       containers:
       - name: server
         image: shawnzhu/artifacts-v2:kube
+        imagePullPolicy: Always
         env:
         - name: SERVER_ADDR
           value: ":443"
