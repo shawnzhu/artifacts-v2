@@ -49,12 +49,15 @@ func HashKey(buildID string, path string) string {
 
 // PutArtifact saves artifact to S3
 func PutArtifact(artifact *model.Artifact, file multipart.File) error {
+	contentDispositionHeader := fmt.Sprintf("attachment; filename=%s",
+		aws.StringValue(artifact.Path))
 	svc, err := newAWSSession()
 
 	_, err = svc.PutObject(&s3.PutObjectInput{
-		Bucket: getBucketName(),
-		Key:    artifact.ObjectKey,
-		Body:   file,
+		Bucket:             getBucketName(),
+		ContentDisposition: &contentDispositionHeader,
+		Key:                artifact.ObjectKey,
+		Body:               file,
 	})
 
 	return err
