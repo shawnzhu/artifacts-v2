@@ -14,8 +14,8 @@ import (
 
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/travis-ci/artifacts-v2/store"
+	"gopkg.in/gin-gonic/gin.v1"
 
 	. "github.com/franela/goblin"
 )
