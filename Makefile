@@ -1,12 +1,15 @@
-BINARY		= travis-artifacts
-NS			= shawnzhu
-REPO		= artifacts-v2
-BIN_DIR		= bin
+BINARY			= travis-artifacts
+NS				= shawnzhu
+REPO			= artifacts-v2
+BIN_DIR			= bin
 
-SHELL		:= /bin/bash
-GOOS		:= $(shell go env GOOS)
-GOARCH		:= $(shell go env GOARCH)
+SHELL			:= /bin/bash
+GOOS			:= $(shell go env GOOS)
+GOARCH			:= $(shell go env GOARCH)
 
+KUBECTL     	:= $(shell command -v kubectl 2> /dev/null)
+K8S_NAMESPACE 	:= artifacts
+K8S_CONTEXT		:= artifacts
 
 default: clean install test build
 
@@ -30,16 +33,18 @@ release:
 	docker build -t $(NS)/$(REPO):$(TAG) .
 	docker push $(NS)/$(REPO):$(TAG)
 
-install_kubectl:
-	if [ "${TRAVIS}" == "true" ] && [ "$(which kubectl)" == "" ]; then		\
-		KUBECTL_RELEASE="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)" \
-		sudo curl -ssL -o /usr/local/bin/kubectl \
-		https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_RELEASE}/bin/linux/amd64/kubectl \
-		sudo chmod +x /usr/local/bin/kubectl \
-	fi
+config_kubectl:
+ifndef KUBECTL
+	$(error "kubctl is not found please install kubectl")
+endif
+	echo $(K8S_CERT_B64) | base64 -d > $(HOME)/kube.crt \
+	kubectl config set-cluster $(K8S_CLUSTER) --server=$(K8S_SERVER) --certificate-authority=$(HOME)/kube.crt --embed-certs=true \
+	kubectl config set-context $(K8S_CONTEXT) --cluster=$(K8S_CLUSTER) --namespace=$(K8S_NAMESPACE) --user=artifacts
+	kubectl config set-credentials $(K8S_CLUSTER) --username=$(K8S_USERNAME) --password=$(K8S_PASSWORD)
+	kubectl config use-context $(K8S_CONTEXT)
 
-deploy:
-	/usr/local/bin/kubectl apply -f k8s-app.yml
+deploy: config_kubectl
+	kubectl apply -f k8s-app.yml
 
 clean:
 	if [ -d $(BIN_DIR) ]; then rm -r $(BIN_DIR); fi
