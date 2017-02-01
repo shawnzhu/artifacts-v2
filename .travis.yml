@@ -30,11 +30,17 @@ before_script:
 
 script: make
 
-before_deploy: docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+before_deploy:
+- docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+- sudo make install_kubectl
 
 deploy:
-  provider: script
+- provider: script
   script: make TAG=${TRAVIS_BRANCH} release
   skip_cleanup: true
+  on:
+    branch: kube
+- provider: script
+  script: make deploy
   on:
     branch: kube
