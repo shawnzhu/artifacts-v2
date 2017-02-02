@@ -36,11 +36,7 @@ before_deploy:
 
 deploy:
 - provider: script
-  script: make TAG=${TRAVIS_BRANCH} release
+  script: make TAG=${TRAVIS_BRANCH} release deploy
   skip_cleanup: true
-  on:
-    branch: kube
-- provider: script
-  script: make deploy
   on:
     branch: kube
