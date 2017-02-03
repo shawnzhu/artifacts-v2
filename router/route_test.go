@@ -74,7 +74,7 @@ func TestJWT(t *testing.T) {
 			app.ServeHTTP(resp, req)
 
 			g.Assert(resp.Code).Equal(http.StatusOK)
-			g.Assert(resp.Header().Get("Access-Control-Allow-Origin")).Equal("*")
+			g.Assert(resp.Header().Get("Access-Control-Allow-Credentials")).Equal("true")
 		})
 	})
 }

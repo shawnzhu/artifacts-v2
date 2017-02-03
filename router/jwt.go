@@ -1,28 +1,27 @@
 package router
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/dgrijalva/jwt-go/request"
-	"gopkg.in/gin-gonic/gin.v1"
+
+	"github.com/auth0/go-jwt-middleware"
+	"github.com/urfave/negroni"
 )
 
-// Auth authenticates request validating JWT signature by a given public key.
-// a user agent must provide a BEARER token via the Authorization header
-func Auth() gin.HandlerFunc {
+// JWT returns a new negroni middleware instance authenticates request
+// validating JWT signature by a given public key.
+func JWT() negroni.HandlerFunc {
 	publicKeyPEM := []byte(os.Getenv("JWT_PUBLIC_KEY"))
 
-	return func(c *gin.Context) {
-		keyFunc := func(token *jwt.Token) (interface{}, error) {
-			return jwt.ParseRSAPublicKeyFromPEM(publicKeyPEM)
-		}
-
-		_, err := request.ParseFromRequest(c.Request, request.AuthorizationHeaderExtractor, keyFunc)
-
-		if err != nil {
-			c.AbortWithError(http.StatusUnauthorized, err)
-		}
+	keyFunc := func(token *jwt.Token) (interface{}, error) {
+		return jwt.ParseRSAPublicKeyFromPEM(publicKeyPEM)
 	}
+
+	m := jwtmiddleware.New(jwtmiddleware.Options{
+		ValidationKeyGetter: keyFunc,
+		SigningMethod:       jwt.SigningMethodRS256,
+	})
+
+	return negroni.HandlerFunc(m.HandlerWithNext)
 }

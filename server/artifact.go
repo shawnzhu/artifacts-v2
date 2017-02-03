@@ -1,27 +1,30 @@
 package server
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
+
 	"github.com/travis-ci/artifacts-v2/model"
 	"github.com/travis-ci/artifacts-v2/store"
-	"gopkg.in/gin-gonic/gin.v1"
 )
 
 // HealthCheck provides runtime status
-func HealthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "OK",
-	})
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("{\"message\":\"OK\"}"))
 }
 
 // UploadArtifact uploads an artifact file
-func UploadArtifact(c *gin.Context) {
-	file, header, err := c.Request.FormFile("file")
+func UploadArtifact(w http.ResponseWriter, r *http.Request) {
+	file, header, err := r.FormFile("file")
 
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -29,7 +32,7 @@ func UploadArtifact(c *gin.Context) {
 		defer file.Close()
 	}
 
-	buildID := c.Param("build_id")
+	buildID := mux.Vars(r)["build_id"]
 
 	filename := header.Filename
 	objectKey := store.HashKey(buildID, filename)
@@ -43,58 +46,64 @@ func UploadArtifact(c *gin.Context) {
 	err = store.PutArtifact(artifact, file)
 
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	datastore := store.FromContext(c)
+	datastore := store.FromContext(r)
 
 	err = datastore.CreateArtifact(artifact)
 
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		c.String(http.StatusCreated, filename)
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte(filename))
 	}
 }
 
 // ListArtifacts lists artifact meta info
-func ListArtifacts(c *gin.Context) {
-	buildID := c.Param("build_id")
+func ListArtifacts(w http.ResponseWriter, r *http.Request) {
+	buildID := mux.Vars(r)["build_id"]
 
-	datastore := store.FromContext(c)
+	datastore := store.FromContext(r)
 
 	list, err := datastore.ListArtifacts(buildID)
 
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		data, _ := json.Marshal(list)
+		w.Write(data)
 	}
-
-	c.JSON(http.StatusOK, list)
 }
 
 // GetArtifact redirects request to a pre-signed URL of artifact file
-func GetArtifact(c *gin.Context) {
+func GetArtifact(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
 	var (
-		buildID    = c.Param("build_id")
-		artifactID = c.Param("artifact_id")
+		buildID    = vars["build_id"]
+		artifactID = vars["artifact_id"]
 	)
 
 	if id, err := strconv.Atoi(artifactID); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
-		datastore := store.FromContext(c)
+		datastore := store.FromContext(r)
 
 		objectKey, err := datastore.RetrieveKeyOfArtifact(id, buildID)
 
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
 			rawURL, _ := store.GetObjectURL(objectKey)
 
-			c.JSON(http.StatusOK, gin.H{
-				"location": rawURL,
-			})
+			w.WriteHeader(http.StatusOK)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(fmt.Sprintf("{\"location\": \"%s\"}", rawURL)))
 		}
 	}
 }

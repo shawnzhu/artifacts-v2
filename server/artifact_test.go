@@ -14,26 +14,27 @@ import (
 
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/travis-ci/artifacts-v2/store"
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/urfave/negroni"
 
 	. "github.com/franela/goblin"
 )
 
-func createTestApp() *gin.Engine {
-	var router = gin.Default()
+func createTestApp() *negroni.Negroni {
+	router := mux.NewRouter()
+	n := negroni.New()
 
-	router.Use(store.Store())
+	n.Use(store.WithStore())
 
-	router.GET("/status", HealthCheck)
+	router.Methods("GET").Path("/status").HandlerFunc(HealthCheck)
+	router.Methods("POST").Path("/upload/{build_id}").HandlerFunc(UploadArtifact)
+	router.Methods("GET").Path("/b/{build_id}").HandlerFunc(ListArtifacts)
+	router.Methods("GET").Path("/b/{build_id}/a/{artifact_id}").HandlerFunc(GetArtifact)
 
-	router.POST("/upload/:build_id", UploadArtifact)
+	n.UseHandler(router)
 
-	router.GET("/b/:build_id", ListArtifacts)
-
-	router.GET("/b/:build_id/a/:artifact_id", GetArtifact)
-
-	return router
+	return n
 }
 
 func TestHandlers(t *testing.T) {
