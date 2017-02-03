@@ -53,7 +53,7 @@ func FromContext(c *gin.Context) *datastore {
 
 // CreateArtifact is for saving meta info
 func (db *datastore) CreateArtifact(artifact *model.Artifact) error {
-	_, err := db.Exec(`INSERT INTO artifacts (build_id, path, s3_object_key)
+	_, err := db.Exec(`INSERT INTO artifacts_v2.artifacts (build_id, path, s3_object_key)
 		VALUES ($1, $2, $3)`, artifact.BuildID, artifact.Path, artifact.ObjectKey)
 
 	return err
@@ -62,14 +62,14 @@ func (db *datastore) CreateArtifact(artifact *model.Artifact) error {
 func (db *datastore) RetrieveKeyOfArtifact(id int, buildID string) (string, error) {
 	var objectKey string
 
-	err := db.QueryRow(`SELECT s3_object_key FROM artifacts
+	err := db.QueryRow(`SELECT s3_object_key FROM artifacts_v2.artifacts
 		WHERE build_id = $1 AND artifact_id = $2`, buildID, id).Scan(&objectKey)
 
 	return objectKey, err
 }
 
 func (db *datastore) ListArtifacts(buildID string) ([]*model.Artifact, error) {
-	rows, err := db.Query(`SELECT artifact_id, path FROM artifacts
+	rows, err := db.Query(`SELECT artifact_id, path FROM artifacts_v2.artifacts
 		WHERE build_id = $1`, buildID)
 
 	if err != nil {
