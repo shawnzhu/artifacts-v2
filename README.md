@@ -11,6 +11,7 @@ work with artifacts over HTTP API.
 
 * Go v1.7.3
 * A running PostgreSQL v9
+* [sqitch](http://sqitch.org/) tool for managing database schema
 * credentials for saving object into AWS S3
 * a public key for verifying JWT token signed by a private key
 
@@ -22,8 +23,13 @@ $ make install
 
 ### Database setup
 
+
 1. Create a database named `test_artifacts`
-1. Run SQL from [store/ddl/1.sql](store/ddl/1.sql)
+1. Deploy schema by sqitch:
+
+```
+$ sqitch deploy db:pg://postgres@localhost:5432/test_artifacts
+```
 
 ### AWS credentials
 
