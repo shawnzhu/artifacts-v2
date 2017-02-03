@@ -1,0 +1,5 @@
+%syntax-version=1.0.0
+%project=artifacts
+%uri=https://github.com/theory/sqitch-intro/
+
+appschema 2017-02-03T15:27:55Z root <root@985ebcde5622> # schema artifacts_v2
