@@ -3,3 +3,4 @@
 %uri=https://github.com/theory/sqitch-intro/
 
 appschema 2017-02-03T15:27:55Z root <root@985ebcde5622> # schema artifacts_v2
+artifacts [appschema] 2017-02-03T16:00:40Z root <root@882d73ffce1d> # creates table to track artifacts meta info
