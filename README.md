@@ -32,7 +32,7 @@ See [Configuring Credentials](https://github.com/aws/aws-sdk-go#configuring-cred
 ### Public key
 
 Make sure the environment variable `JWT_PUBLIC_KEY` contains public key in PEM format.
-E.g., `export JWT_PUBLIC_KEY="$(public_key.pem)"`
+E.g., `export JWT_PUBLIC_KEY="$(cat public_key.pem)"`
 
 ## Testing
 
@@ -58,4 +58,33 @@ Push to docker hub:
 
 ```
 make TAG=<tag-name> release
+```
+
+## Deploy to Kubernetes
+
+Prerequisite: a secret object:
+
+```
+$ kubectl describe secret artifacts-drybag
+Name:		artifacts-drybag
+Namespace:	artifacts
+Labels:		<none>
+Annotations:	<none>
+
+Type:	Opaque
+
+Data
+====
+aws_access_key_id:		21 bytes
+aws_secret_access_key:		41 bytes
+db_url:				105 bytes
+jwt_public_key:			451 bytes
+travis-artifacts-psql.crt:	1224 bytes
+```
+
+create distributed app on ready Kubernetes cluster:
+
+```
+$ kubectl create secret tls artifacts-tls --cert=<cert-file-path> --key=<key-file-path>
+$ kubectl create -f k8s-app.yml
 ```

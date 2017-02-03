@@ -14,8 +14,8 @@ import (
 
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/travis-ci/artifacts-v2/store"
+	"gopkg.in/gin-gonic/gin.v1"
 
 	. "github.com/franela/goblin"
 )
@@ -113,17 +113,21 @@ func TestHandlers(t *testing.T) {
 			artifactID = artifacts[0]["ID"]
 		})
 
-		g.It("redirects to a download URL of artifact", func() {
+		g.It("provides download URL of artifact", func() {
+			var data map[string]string
+
 			artifactPath := fmt.Sprintf("/b/foo/a/%v", artifactID)
 
 			req, _ := http.NewRequest("GET", artifactPath, nil)
 			resp := httptest.NewRecorder()
 			app.ServeHTTP(resp, req)
 
-			g.Assert(resp.Code).Equal(http.StatusFound)
+			g.Assert(resp.Code).Equal(http.StatusOK)
 
-			rawURL := resp.HeaderMap.Get("Location")
-			objectURL, _ := url.Parse(rawURL)
+			err := json.Unmarshal(resp.Body.Bytes(), &data)
+			g.Assert(err).Equal(nil)
+
+			objectURL, _ := url.Parse(data["location"])
 			g.Assert(objectURL.Scheme).Equal("https")
 		})
 

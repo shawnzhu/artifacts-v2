@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: artifacts
+  labels:
+    run: artifacts
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 443
+    protocol: TCP
+    name: https
+  selector:
+    run: artifacts-v2
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: artifacts
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: artifacts-v2
+    spec:
+      volumes:
+      - name: tls
+        secret:
+          secretName: artifacts-tls
+      - name: drybag
+        secret:
+          secretName: artifacts-drybag
+      containers:
+      - name: server
+        image: shawnzhu/artifacts-v2:kube
+        imagePullPolicy: Always
+        env:
+        - name: SERVER_ADDR
+          value: ":443"
+        - name: SERVER_CERT
+          value: /etc/travis-artifacts/tls.crt
+        - name: SERVER_KEY
+          value: /etc/travis-artifacts/tls.key
+        - name: PGSSLROOTCERT
+          value: /etc/travis-artifacts-drybag/travis-artifacts-psql.crt
+        - name: ARTIFACTS_S3_BUCKET_NAME
+          value: travis-ci-artifacts-test
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: aws_access_key_id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: aws_secret_access_key
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: db_url
+        - name: JWT_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: artifacts-drybag
+              key: jwt_public_key
+        ports:
+        - containerPort: 443
+        volumeMounts:
+        - name: tls
+          mountPath: /etc/travis-artifacts
+          readOnly: true
+        - name: drybag
+          mountPath: /etc/travis-artifacts-drybag
+          readOnly: true

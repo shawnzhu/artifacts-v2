@@ -15,8 +15,11 @@ func TestS3(t *testing.T) {
 	g.Describe("PutArtifact", func() {
 		g.It("throws error", func() {
 			buildID := "foo"
+			filename := "bar.tgz"
+
 			err := PutArtifact(&model.Artifact{
 				BuildID: &buildID,
+				Path:    &filename,
 			}, nil)
 
 			if err == nil {

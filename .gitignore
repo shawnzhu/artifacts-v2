@@ -2,3 +2,4 @@
 /bin
 /*.crt
 /*.key
+/k8s-secret.yml
