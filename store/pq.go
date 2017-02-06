@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"os"
 
-	"gopkg.in/gin-gonic/gin.v1"
-
 	"github.com/urfave/negroni"
 
 	"github.com/travis-ci/artifacts-v2/model"
@@ -39,22 +37,6 @@ func open(driverName, dbConnURL string) *datastore {
 	}
 
 	return &datastore{db}
-}
-
-// Store provides a middleware to inject data source
-func Store() gin.HandlerFunc {
-	var dbURL string
-
-	if dbURL = os.Getenv("DB_URL"); dbURL == "" {
-		dbURL = defaultDBURL
-	}
-
-	return func(c *gin.Context) {
-		var store *datastore
-		store = open("postgres", dbURL)
-		c.Set("store", store)
-		c.Next()
-	}
 }
 
 // WithStore mixins datastore into request context
