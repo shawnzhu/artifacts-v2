@@ -24,6 +24,7 @@ spec:
     metadata:
       labels:
         run: artifacts-v2
+        release: alpha
     spec:
       volumes:
       - name: tls
@@ -34,7 +35,7 @@ spec:
           secretName: artifacts-drybag
       containers:
       - name: server
-        image: shawnzhu/artifacts-v2:kube
+        image: shawnzhu/artifacts-v2:master
         imagePullPolicy: Always
         env:
         - name: SERVER_ADDR

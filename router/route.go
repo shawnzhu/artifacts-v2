@@ -22,15 +22,15 @@ func Routes() http.Handler {
 		store.WithStore(),
 	)
 
-	router.Methods("POST").Path("/upload/{build_id}").HandlerFunc(server.UploadArtifact)
+	buildBase := mux.NewRouter()
 
-	build := router.PathPrefix("/builds/{build_id}").Subrouter()
+	router.PathPrefix("/builds/{build_id}").Handler(n.With(
+		negroni.Wrap(buildBase),
+	))
 
-	build.Methods("GET").HandlerFunc(server.ListArtifacts)
-	build.Methods("POST").HandlerFunc(server.UploadArtifact)
-	build.Methods("GET").Path("/artifacts/{artifact_id}").HandlerFunc(server.GetArtifact)
+	buildBase.Methods("GET").HandlerFunc(server.ListArtifacts)
+	buildBase.Methods("POST").HandlerFunc(server.UploadArtifact)
+	buildBase.Methods("GET").Path("/artifacts/{artifact_id}").HandlerFunc(server.GetArtifact)
 
-	n.UseHandler(router)
-
-	return n
+	return router
 }
