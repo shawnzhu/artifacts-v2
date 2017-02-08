@@ -34,6 +34,16 @@ func TestJWT(t *testing.T) {
 	g := Goblin(t)
 	app := createTestApp()
 
+	g.Describe("URI /status", func() {
+		g.It("no token required", func() {
+			req, _ := http.NewRequest("GET", "/status", nil)
+			resp := httptest.NewRecorder()
+			app.ServeHTTP(resp, req)
+
+			g.Assert(resp.Code).Equal(http.StatusOK)
+		})
+	})
+
 	g.Describe("URI /builds/foo", func() {
 
 		g.It("supports verb OPTIONS", func() {
