@@ -2,43 +2,35 @@ package router
 
 import (
 	"net/http"
-	"time"
 
-	"gopkg.in/gin-contrib/cors.v1"
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/gorilla/mux"
+	"github.com/urfave/negroni"
 
 	"github.com/travis-ci/artifacts-v2/server"
 	"github.com/travis-ci/artifacts-v2/store"
 )
 
 // Routes load middlewares
-func Routes(middleware ...gin.HandlerFunc) http.Handler {
-	var router = gin.Default()
+func Routes() http.Handler {
+	router := mux.NewRouter()
 
-	// TODO add other middlewares
+	router.HandleFunc("/status", server.HealthCheck).Methods("GET")
 
-	router.GET("/status", server.HealthCheck)
+	n := negroni.New(
+		JWT(),
+		CORS(),
+		store.WithStore(),
+	)
 
-	router.Use(store.Store())
+	router.Methods("POST").Path("/upload/{build_id}").HandlerFunc(server.UploadArtifact)
 
-	router.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
-		AllowCredentials: true,
-		AllowMethods:     []string{"GET"},
-		AllowHeaders:     []string{"Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length", "Location"},
-		MaxAge:           24 * time.Hour,
-	}))
+	build := router.PathPrefix("/builds/{build_id}").Subrouter()
 
-	router.Use(Auth())
+	build.Methods("GET").HandlerFunc(server.ListArtifacts)
+	build.Methods("POST").HandlerFunc(server.UploadArtifact)
+	build.Methods("GET").Path("/artifacts/{artifact_id}").HandlerFunc(server.GetArtifact)
 
-	router.POST("/upload/:build_id", server.UploadArtifact)
+	n.UseHandler(router)
 
-	artifacts := router.Group("/builds/:build_id")
-	{
-		artifacts.GET("", server.ListArtifacts)
-		artifacts.GET("/artifacts/:artifact_id", server.GetArtifact)
-	}
-
-	return router
+	return n
 }
