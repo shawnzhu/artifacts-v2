@@ -28,9 +28,9 @@ func createTestApp() *negroni.Negroni {
 	n.Use(store.WithStore())
 
 	router.Methods("GET").Path("/status").HandlerFunc(HealthCheck)
-	router.Methods("POST").Path("/upload/{build_id}").HandlerFunc(UploadArtifact)
-	router.Methods("GET").Path("/b/{build_id}").HandlerFunc(ListArtifacts)
-	router.Methods("GET").Path("/b/{build_id}/a/{artifact_id}").HandlerFunc(GetArtifact)
+	router.Methods("POST").Path("/jobs/{job_id}").HandlerFunc(UploadArtifact)
+	router.Methods("GET").Path("/b/{job_id}").HandlerFunc(ListArtifacts)
+	router.Methods("GET").Path("/b/{job_id}/a/{artifact_id}").HandlerFunc(GetArtifact)
 
 	n.UseHandler(router)
 
@@ -60,7 +60,7 @@ func TestHandlers(t *testing.T) {
 
 	g.Describe("upload artifact", func() {
 		g.It("responses client side error", func() {
-			req, _ := http.NewRequest("POST", "/upload/bar", nil)
+			req, _ := http.NewRequest("POST", "/jobs/bar", nil)
 			resp := httptest.NewRecorder()
 			app.ServeHTTP(resp, req)
 
@@ -86,7 +86,7 @@ func TestHandlers(t *testing.T) {
 
 			bodyWriter.Close()
 
-			req, _ := http.NewRequest("POST", "/upload/bar", &bodyBuffer)
+			req, _ := http.NewRequest("POST", "/jobs/bar", &bodyBuffer)
 			req.Header.Set("Content-Type", bodyWriter.FormDataContentType())
 
 			resp := httptest.NewRecorder()

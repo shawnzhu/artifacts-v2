@@ -16,13 +16,13 @@ func openTestDB() *datastore {
 
 func mockArtifact() *model.Artifact {
 	var (
-		buildID = "foo"
-		path    = "bar"
-		key     = fakeKeyValue
+		jobID = "foo"
+		path  = "bar"
+		key   = fakeKeyValue
 	)
 
 	return &model.Artifact{
-		BuildID:   &buildID,
+		JobID:     &jobID,
 		Path:      &path,
 		ObjectKey: &key,
 	}

@@ -24,7 +24,7 @@ func Routes() http.Handler {
 
 	buildBase := mux.NewRouter()
 
-	router.PathPrefix("/builds/{build_id}").Handler(n.With(
+	router.PathPrefix("/jobs/{job_id}").Handler(n.With(
 		negroni.Wrap(buildBase),
 	))
 

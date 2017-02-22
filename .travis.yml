@@ -24,7 +24,7 @@ before_script:
 - psql -c 'CREATE DATABASE test_artifacts;' -U postgres
 - docker run -v $(pwd):/src:ro -t --rm --network=host docteurklein/sqitch:pgsql deploy ${DATABASE_URI}
 - docker run -v $(pwd):/src:ro -t --rm --network=host docteurklein/sqitch:pgsql verify ${DATABASE_URI}
-- psql -c "INSERT INTO artifacts_v2.artifacts (build_id, path, s3_object_key) VALUES ('foo', '/bar', 'fake_key');" -d test_artifacts -U postgres
+- psql -c "INSERT INTO artifacts_v2.artifacts (job_id, path, s3_object_key) VALUES ('foo', '/bar', 'fake_key');" -d test_artifacts -U postgres
 - openssl genrsa -out private_key.pem 2048
 - openssl rsa -in private_key.pem -pubout -out public_key.pem
 - export JWT_PRIVATE_KEY_PATH=$(pwd)/private_key.pem
