@@ -44,10 +44,10 @@ func TestJWT(t *testing.T) {
 		})
 	})
 
-	g.Describe("URI /builds/foo", func() {
+	g.Describe("URI /jobs/foo", func() {
 
 		g.It("supports verb OPTIONS", func() {
-			req, _ := http.NewRequest("OPTIONS", "/builds/foo", nil)
+			req, _ := http.NewRequest("OPTIONS", "/jobs/foo", nil)
 			req.Header.Set("Origin", "http://foo.example.com")
 			resp := httptest.NewRecorder()
 			app.ServeHTTP(resp, req)
@@ -56,7 +56,7 @@ func TestJWT(t *testing.T) {
 		})
 
 		g.It("requires token", func() {
-			req, _ := http.NewRequest("GET", "/builds/foo", nil)
+			req, _ := http.NewRequest("GET", "/jobs/foo", nil)
 			resp := httptest.NewRecorder()
 			app.ServeHTTP(resp, req)
 
@@ -66,7 +66,7 @@ func TestJWT(t *testing.T) {
 		g.It("supports JWT token", func() {
 			jwtToken, _ := generateJWTToken()
 
-			req, _ := http.NewRequest("GET", "/builds/foo", nil)
+			req, _ := http.NewRequest("GET", "/jobs/foo", nil)
 			req.Header.Set("Authorization", "BEARER "+jwtToken)
 			resp := httptest.NewRecorder()
 			app.ServeHTTP(resp, req)
@@ -77,7 +77,7 @@ func TestJWT(t *testing.T) {
 		g.It("supports CORS headers", func() {
 			jwtToken, _ := generateJWTToken()
 
-			req, _ := http.NewRequest("GET", "/builds/foo", nil)
+			req, _ := http.NewRequest("GET", "/jobs/foo", nil)
 			req.Header.Set("Authorization", "BEARER "+jwtToken)
 			req.Header.Set("Origin", "http://foo.example.com")
 			resp := httptest.NewRecorder()

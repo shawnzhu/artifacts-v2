@@ -32,7 +32,7 @@ func UploadArtifact(w http.ResponseWriter, r *http.Request) {
 		defer file.Close()
 	}
 
-	buildID := mux.Vars(r)["build_id"]
+	buildID := mux.Vars(r)["job_id"]
 
 	filename := header.Filename
 	objectKey := store.HashKey(buildID, filename)
@@ -64,7 +64,7 @@ func UploadArtifact(w http.ResponseWriter, r *http.Request) {
 
 // ListArtifacts lists artifact meta info
 func ListArtifacts(w http.ResponseWriter, r *http.Request) {
-	buildID := mux.Vars(r)["build_id"]
+	buildID := mux.Vars(r)["job_id"]
 
 	datastore := store.FromContext(r)
 
@@ -85,7 +85,7 @@ func GetArtifact(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	var (
-		buildID    = vars["build_id"]
+		buildID    = vars["job_id"]
 		artifactID = vars["artifact_id"]
 	)
 

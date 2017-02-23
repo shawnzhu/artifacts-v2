@@ -69,24 +69,24 @@ func FromContext(r *http.Request) *datastore {
 
 // CreateArtifact is for saving meta info
 func (db *datastore) CreateArtifact(artifact *model.Artifact) error {
-	_, err := db.Exec(`INSERT INTO artifacts_v2.artifacts (build_id, path, s3_object_key)
-		VALUES ($1, $2, $3)`, artifact.BuildID, artifact.Path, artifact.ObjectKey)
+	_, err := db.Exec(`INSERT INTO artifacts_v2.artifacts (job_id, path, s3_object_key)
+		VALUES ($1, $2, $3)`, artifact.JobID, artifact.Path, artifact.ObjectKey)
 
 	return err
 }
 
-func (db *datastore) RetrieveKeyOfArtifact(id int, buildID string) (string, error) {
+func (db *datastore) RetrieveKeyOfArtifact(id int, jobID string) (string, error) {
 	var objectKey string
 
 	err := db.QueryRow(`SELECT s3_object_key FROM artifacts_v2.artifacts
-		WHERE build_id = $1 AND artifact_id = $2`, buildID, id).Scan(&objectKey)
+		WHERE job_id = $1 AND artifact_id = $2`, jobID, id).Scan(&objectKey)
 
 	return objectKey, err
 }
 
-func (db *datastore) ListArtifacts(buildID string) ([]*model.Artifact, error) {
+func (db *datastore) ListArtifacts(jobID string) ([]*model.Artifact, error) {
 	rows, err := db.Query(`SELECT artifact_id, path FROM artifacts_v2.artifacts
-		WHERE build_id = $1`, buildID)
+		WHERE job_id = $1`, jobID)
 
 	if err != nil {
 		log.Fatal(err)
@@ -105,9 +105,9 @@ func (db *datastore) ListArtifacts(buildID string) ([]*model.Artifact, error) {
 
 		if err == nil {
 			artifacts = append(artifacts, &model.Artifact{
-				ID:      id,
-				BuildID: &buildID,
-				Path:    &path,
+				ID:    id,
+				JobID: &jobID,
+				Path:  &path,
 			})
 		}
 	}
