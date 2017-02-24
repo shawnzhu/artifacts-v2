@@ -41,8 +41,8 @@ func newAWSSession() (*s3.S3, error) {
 }
 
 // HashKey generates object key from artifact meta info
-func HashKey(buildID string, path string) string {
-	data := []byte(fmt.Sprintf("%s-%s", buildID, path))
+func HashKey(jobID string, path string) string {
+	data := []byte(fmt.Sprintf("%s-%s", jobID, path))
 	hash := md5.Sum(data)
 	return hex.EncodeToString(hash[:])
 }
@@ -64,12 +64,11 @@ func PutArtifact(artifact *model.Artifact, file multipart.File) error {
 }
 
 // GetArtifact retrieves artifact content
-func GetArtifact(buildID string, key string) (*model.Artifact, error) {
+func GetArtifact(jobID string, key string) (*model.Artifact, error) {
 
 	return &model.Artifact{
-		BuildID:   &buildID,
-		Path:      &key,
-		ObjectKey: &key,
+		JobID: &jobID,
+		Path:  &key,
 	}, nil
 }
 
