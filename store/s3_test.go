@@ -4,23 +4,17 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/travis-ci/artifacts-v2/model"
-
 	. "github.com/franela/goblin"
 )
 
 func TestS3(t *testing.T) {
 	g := Goblin(t)
 
+	artifact := mockArtifact()
+
 	g.Describe("PutArtifact", func() {
 		g.It("throws error", func() {
-			buildID := "foo"
-			filename := "bar.tgz"
-
-			err := PutArtifact(&model.Artifact{
-				BuildID: &buildID,
-				Path:    &filename,
-			}, nil)
+			err := PutArtifact(artifact, nil)
 
 			if err == nil {
 				g.Assert(err).Equal(nil) // fail test
@@ -28,23 +22,9 @@ func TestS3(t *testing.T) {
 		})
 	})
 
-	g.Describe("GetArtifact", func() {
-		g.It("returns meta info", func() {
-			buildID := "foo"
-			key := "bar"
-
-			artifact, err := GetArtifact(buildID, key)
-
-			g.Assert(err).Equal(nil)
-			g.Assert(*artifact.ObjectKey).Equal(key)
-		})
-	})
-
 	g.Describe("GetObjectURL", func() {
 		g.It("returns url to download object", func() {
-			key := "bar"
-
-			rawURL, err := GetObjectURL(key)
+			rawURL, err := GetObjectURL(artifact)
 			g.Assert(err).Equal(nil)
 
 			objectURL, _ := url.Parse(rawURL)

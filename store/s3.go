@@ -40,9 +40,9 @@ func newAWSSession() (*s3.S3, error) {
 	return svc, err
 }
 
-// HashKey generates object key from artifact meta info
-func HashKey(buildID string, path string) string {
-	data := []byte(fmt.Sprintf("%s-%s", buildID, path))
+// ObjectKey generates object key from artifact meta info
+func ObjectKey(artifact *model.Artifact) string {
+	data := []byte(fmt.Sprintf("%s-%s", artifact.JobID, artifact.Path))
 	hash := md5.Sum(data)
 	return hex.EncodeToString(hash[:])
 }
@@ -53,10 +53,12 @@ func PutArtifact(artifact *model.Artifact, file multipart.File) error {
 		aws.StringValue(artifact.Path))
 	svc, err := newAWSSession()
 
+	objectKey := ObjectKey(artifact)
+
 	_, err = svc.PutObject(&s3.PutObjectInput{
 		Bucket:             getBucketName(),
 		ContentDisposition: &contentDispositionHeader,
-		Key:                artifact.ObjectKey,
+		Key:                &objectKey,
 		Body:               file,
 	})
 
@@ -64,18 +66,18 @@ func PutArtifact(artifact *model.Artifact, file multipart.File) error {
 }
 
 // GetArtifact retrieves artifact content
-func GetArtifact(buildID string, key string) (*model.Artifact, error) {
+func GetArtifact(jobID string, key string) (*model.Artifact, error) {
 
 	return &model.Artifact{
-		BuildID:   &buildID,
-		Path:      &key,
-		ObjectKey: &key,
+		JobID: &jobID,
+		Path:  &key,
 	}, nil
 }
 
 // GetObjectURL returns a download URL of an S3 object
-func GetObjectURL(objectKey string) (string, error) {
+func GetObjectURL(artifact *model.Artifact) (string, error) {
 	svc, _ := newAWSSession()
+	objectKey := ObjectKey(artifact)
 
 	getObjectReq, _ := svc.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: getBucketName(),

@@ -2,7 +2,7 @@
 
 BEGIN;
 
-SELECT build_id, path, s3_object_key
+SELECT build_id, path
     FROM artifacts_v2.artifacts
     WHERE FALSE;
 

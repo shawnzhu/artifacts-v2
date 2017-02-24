@@ -1,6 +1,7 @@
 package router
 
 import (
+	"flag"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -9,12 +10,15 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/urfave/cli"
 
 	. "github.com/franela/goblin"
 )
 
 func createTestApp() http.Handler {
-	return Routes()
+	mockSet := flag.NewFlagSet("test", 0)
+	mockSet.String("jwt-public-key", os.Getenv("JWT_PUBLIC_KEY"), "")
+	return Routes(cli.NewContext(nil, mockSet, nil))
 }
 
 func generateJWTToken() (string, error) {

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/urfave/cli"
@@ -34,6 +34,7 @@ func TestCli(t *testing.T) {
 	g.Describe("Run ./travis-artifacts -h", func() {
 		w := &mockWriter{}
 		app := app()
+		var output string
 
 		g.Before(func() {
 			app.Action = func(c *cli.Context) error {
@@ -44,22 +45,25 @@ func TestCli(t *testing.T) {
 			app.Writer = w
 
 			err := app.Run([]string{"travis-artifacts", "-h"})
+			output = string(w.GetWritten())
 			g.Assert(err).Equal(nil)
 		})
 
 		g.It("shows usage", func() {
-			g.Assert(bytes.Contains(w.written, []byte(app.Usage)))
+			g.Assert(strings.Contains(output, app.Usage)).Equal(true)
 		})
 
 		params := [...]string{
 			"server-addr",
 			"server-cert",
 			"server-key",
+			"db-url",
+			"jwt-public-key",
 		}
 
 		for _, param := range params {
 			g.It(fmt.Sprintf("supports parameter %s", param), func() {
-				g.Assert(bytes.Contains(w.written, []byte(param)))
+				g.Assert(strings.Contains(output, param)).Equal(true)
 			})
 		}
 	})

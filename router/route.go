@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/urfave/cli"
 	"github.com/urfave/negroni"
 
 	"github.com/travis-ci/artifacts-v2/server"
@@ -11,15 +12,15 @@ import (
 )
 
 // Routes load middlewares
-func Routes() http.Handler {
+func Routes(c *cli.Context) http.Handler {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/status", server.HealthCheck).Methods("GET")
 
 	n := negroni.New(
-		JWT(),
+		JWT(c),
 		CORS(),
-		store.WithStore(),
+		store.WithStore(c),
 	)
 
 	buildBase := mux.NewRouter()

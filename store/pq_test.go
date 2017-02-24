@@ -18,13 +18,11 @@ func mockArtifact() *model.Artifact {
 	var (
 		jobID = "foo"
 		path  = "bar"
-		key   = fakeKeyValue
 	)
 
 	return &model.Artifact{
-		JobID:     &jobID,
-		Path:      &path,
-		ObjectKey: &key,
+		JobID: &jobID,
+		Path:  &path,
 	}
 }
 
@@ -34,9 +32,11 @@ func TestDB(t *testing.T) {
 	db := openTestDB()
 	defer db.Close()
 
+	artifact := mockArtifact()
+
 	g.Describe("stores meta info", func() {
 		g.It("saves artifact meta info", func() {
-			err := db.CreateArtifact(mockArtifact())
+			err := db.CreateArtifact(artifact)
 
 			g.Assert(err).Equal(nil)
 		})
@@ -47,14 +47,14 @@ func TestDB(t *testing.T) {
 			g.Assert(err).Equal(nil)
 		})
 
-		g.It("retrieves object key of an artifact", func() {
-			rows, err := db.ListArtifacts("foo")
+		g.It("retrieves an artifact", func() {
+			rows, err := db.ListArtifacts(*artifact.JobID)
 
 			id := rows[len(rows)-1].ID
 
-			objectKey, err := db.RetrieveKeyOfArtifact(id, "foo")
+			firstArtifact, _ := db.RetrieveArtifact(id)
 
-			g.Assert(objectKey).Equal(fakeKeyValue)
+			g.Assert(firstArtifact.JobID).Equal(artifact.JobID)
 
 			g.Assert(err).Equal(nil)
 		})

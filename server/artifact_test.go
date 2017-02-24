@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/travis-ci/artifacts-v2/store"
+	"github.com/urfave/cli"
 	"github.com/urfave/negroni"
 
 	. "github.com/franela/goblin"
@@ -24,8 +26,9 @@ import (
 func createTestApp() *negroni.Negroni {
 	router := mux.NewRouter()
 	n := negroni.New()
+	mockSet := flag.NewFlagSet("test", 0)
 
-	n.Use(store.WithStore())
+	n.Use(store.WithStore(cli.NewContext(nil, mockSet, nil)))
 
 	router.Methods("GET").Path("/status").HandlerFunc(HealthCheck)
 	router.Methods("POST").Path("/jobs/{job_id}").HandlerFunc(UploadArtifact)
