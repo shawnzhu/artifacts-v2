@@ -10,7 +10,7 @@ import (
 )
 
 func server(c *cli.Context) error {
-	handler := router.Routes()
+	handler := router.Routes(c)
 
 	if c.String("server-cert") == "" {
 		return http.ListenAndServe(c.String("server-addr"), handler)
@@ -46,6 +46,16 @@ func app() *cli.App {
 			Name:   "server-key",
 			Usage:  "server TLS key",
 			EnvVar: "SERVER_KEY",
+		},
+		cli.StringFlag{
+			Name:   "db-url",
+			Usage:  "database URL",
+			EnvVar: "DB_URL",
+		},
+		cli.StringFlag{
+			Name:   "jwt-public-key",
+			Usage:  "RSA public key for JWT",
+			EnvVar: "JWT_PUBLIC_KEY",
 		},
 	}
 

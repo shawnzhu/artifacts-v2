@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/urfave/cli"
 	"github.com/urfave/negroni"
 
 	"github.com/travis-ci/artifacts-v2/model"
@@ -40,13 +40,13 @@ func open(driverName, dbConnURL string) *datastore {
 }
 
 // WithStore mixins datastore into request context
-func WithStore() negroni.HandlerFunc {
+func WithStore(c *cli.Context) negroni.HandlerFunc {
 	var (
 		dbURL string
 		store *datastore
 	)
 
-	if dbURL = os.Getenv("DB_URL"); dbURL == "" {
+	if dbURL = c.String("db-url"); dbURL == "" {
 		dbURL = defaultDBURL
 	}
 
