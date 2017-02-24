@@ -69,19 +69,26 @@ func FromContext(r *http.Request) *datastore {
 
 // CreateArtifact is for saving meta info
 func (db *datastore) CreateArtifact(artifact *model.Artifact) error {
-	_, err := db.Exec(`INSERT INTO artifacts_v2.artifacts (job_id, path, s3_object_key)
-		VALUES ($1, $2, $3)`, artifact.JobID, artifact.Path, artifact.ObjectKey)
+	_, err := db.Exec(`INSERT INTO artifacts_v2.artifacts (job_id, path)
+		VALUES ($1, $2)`, artifact.JobID, artifact.Path)
 
 	return err
 }
 
-func (db *datastore) RetrieveKeyOfArtifact(id int, jobID string) (string, error) {
-	var objectKey string
+func (db *datastore) RetrieveArtifact(artifactID int) (*model.Artifact, error) {
+	var (
+		jobID string
+		path  string
+	)
 
-	err := db.QueryRow(`SELECT s3_object_key FROM artifacts_v2.artifacts
-		WHERE job_id = $1 AND artifact_id = $2`, jobID, id).Scan(&objectKey)
+	err := db.QueryRow(`SELECT job_id, path FROM artifacts_v2.artifacts
+		WHERE artifact_id = $1`, artifactID).Scan(&jobID, &path)
 
-	return objectKey, err
+	return &model.Artifact{
+		ID:    artifactID,
+		JobID: &jobID,
+		Path:  &path,
+	}, err
 }
 
 func (db *datastore) ListArtifacts(jobID string) ([]*model.Artifact, error) {

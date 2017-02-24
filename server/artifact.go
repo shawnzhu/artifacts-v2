@@ -32,15 +32,12 @@ func UploadArtifact(w http.ResponseWriter, r *http.Request) {
 		defer file.Close()
 	}
 
-	buildID := mux.Vars(r)["job_id"]
-
+	jobID := mux.Vars(r)["job_id"]
 	filename := header.Filename
-	objectKey := store.HashKey(buildID, filename)
 
 	artifact := &model.Artifact{
-		BuildID:   &buildID,
-		Path:      &filename,
-		ObjectKey: &objectKey,
+		JobID: &jobID,
+		Path:  &filename,
 	}
 
 	err = store.PutArtifact(artifact, file)
@@ -64,11 +61,11 @@ func UploadArtifact(w http.ResponseWriter, r *http.Request) {
 
 // ListArtifacts lists artifact meta info
 func ListArtifacts(w http.ResponseWriter, r *http.Request) {
-	buildID := mux.Vars(r)["job_id"]
+	jobID := mux.Vars(r)["job_id"]
 
 	datastore := store.FromContext(r)
 
-	list, err := datastore.ListArtifacts(buildID)
+	list, err := datastore.ListArtifacts(jobID)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -84,22 +81,19 @@ func ListArtifacts(w http.ResponseWriter, r *http.Request) {
 func GetArtifact(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	var (
-		buildID    = vars["job_id"]
-		artifactID = vars["artifact_id"]
-	)
+	var artifactID = vars["artifact_id"]
 
 	if id, err := strconv.Atoi(artifactID); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
 		datastore := store.FromContext(r)
 
-		objectKey, err := datastore.RetrieveKeyOfArtifact(id, buildID)
+		artifact, err := datastore.RetrieveArtifact(id)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			rawURL, _ := store.GetObjectURL(objectKey)
+			rawURL, _ := store.GetObjectURL(artifact)
 
 			w.WriteHeader(http.StatusOK)
 			w.Header().Set("Content-Type", "application/json")
